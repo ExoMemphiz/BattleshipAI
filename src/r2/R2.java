@@ -13,27 +13,24 @@ import tournament.player.PlayerFactory;
  *
  * @author Tobias Grundtvig
  */
-public class R2 implements PlayerFactory<BattleshipsPlayer>
-{
+public class R2 implements PlayerFactory<BattleshipsPlayer> {
 
-    public R2(){}
+    public R2(){
     
+    }
     
     @Override
-    public BattleshipsPlayer getNewInstance()
-    {
+    public BattleshipsPlayer getNewInstance() {
         return new Player();
     }
 
     @Override
-    public String getID()
-    {
+    public String getID() {
         return "E3";
     }
 
     @Override
-    public String getName()
-    {
+    public String getName() {
         return "E3 player";
     }
     

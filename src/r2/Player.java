@@ -22,8 +22,8 @@ public class Player implements BattleshipsPlayer
     private int sizeY;
     private Board myBoard;
    
-    public Player()
-    {
+    public Player() {
+        
     }
 
    
@@ -44,8 +44,7 @@ public class Player implements BattleshipsPlayer
      * @param board Board the board were the ships must be placed.
      */
     @Override
-    public void placeShips(Fleet fleet, Board board)
-    {
+    public void placeShips(Fleet fleet, Board board) {
         myBoard = board;
         sizeX = board.sizeX();
         sizeY = board.sizeY();
@@ -79,8 +78,7 @@ public class Player implements BattleshipsPlayer
      * @param pos Position of the enemy's shot 
      */
     @Override
-    public void incoming(Position pos)
-    {
+    public void incoming(Position pos) {
         //Do nothing
     }
 
@@ -95,8 +93,7 @@ public class Player implements BattleshipsPlayer
      * @return Position of you next shot.
      */
     @Override
-    public Position getFireCoordinates(Fleet enemyShips)
-    {
+    public Position getFireCoordinates(Fleet enemyShips) {
         int x = rnd.nextInt(sizeX);
         int y = rnd.nextInt(sizeY);
         return new Position(x,y);
@@ -114,8 +111,7 @@ public class Player implements BattleshipsPlayer
      * @param enemyShips Fleet the enemy's ships.
      */
     @Override
-    public void hitFeedBack(boolean hit, Fleet enemyShips)
-    {
+    public void hitFeedBack(boolean hit, Fleet enemyShips) {
         //Do nothing
     }    
 
@@ -126,8 +122,7 @@ public class Player implements BattleshipsPlayer
      * @param rounds int the number of rounds i a match
      */
     @Override
-    public void startMatch(int rounds)
-    {
+    public void startMatch(int rounds) {
         //Do nothing
     }
     
@@ -137,8 +132,7 @@ public class Player implements BattleshipsPlayer
      * @param round int the current round number.
      */
     @Override
-    public void startRound(int round)
-    {
+    public void startRound(int round) {
         //Do nothing
     }
 
@@ -154,8 +148,7 @@ public class Player implements BattleshipsPlayer
      * @param enemyPoints int enemy's points this round. 
      */
     @Override
-    public void endRound(int round, int points, int enemyPoints)
-    {
+    public void endRound(int round, int points, int enemyPoints) {
         //Do nothing
     }
     
@@ -169,8 +162,8 @@ public class Player implements BattleshipsPlayer
      * @param draw int the number of draws in this match.
      */
     @Override
-    public void endMatch(int won, int lost, int draw)
-    {
+    public void endMatch(int won, int lost, int draw) {
         //Do nothing
     }
+    
 }
