@@ -50,5 +50,10 @@ public class Tile {
         Tile t = (Tile) obj;
         return (t.getPos().equals(this.getPos()));
     }
+
+    @Override
+    public String toString() {
+        return "[" + pos.x + ", " + pos.y + ", state: " + tileState + ", value: " + tileValue + "]";
+    }
     
 }

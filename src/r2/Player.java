@@ -27,6 +27,7 @@ public class Player implements BattleshipsPlayer {
     private int sizeY = 10;
     private Board myBoard;
     private TileBoard tileBoard;
+    private Tile previousTile;
    
     public Player() {
         tileBoard = new TileBoard(sizeX, sizeY);
@@ -100,42 +101,41 @@ public class Player implements BattleshipsPlayer {
      */
     @Override
     public Position getFireCoordinates(Fleet enemyShips) {
-        System.out.println("Testing fire");
         ArrayList<Tile> suitableTiles = new ArrayList<>();
         //if tilevalue is >= 50 the chance of hitting a ship is high, hit here.
         tileBoard.calculateHeatmap();
-        for (Tile t : tileBoard) {
-            if (t.getTileValue() >= 25) {
-                suitableTiles.add(t);
+        Tile[][] heatmapBoard = tileBoard.getBoard();
+        for (Tile[] tiles : heatmapBoard) {
+            for (Tile t : tiles) {
+                if (t.getTileValue() >= 25) {
+                    suitableTiles.add(t);
+                }
             }
         }
-        System.out.println("[getFireCoords] 1");
         //If there are suitable heatmap tiles
         if (suitableTiles.size() > 0) {
-            System.out.println("Shooting from HeatMap");
-            return suitableTiles.get(rnd.nextInt(suitableTiles.size())).getPos();
+            previousTile = suitableTiles.get(rnd.nextInt(suitableTiles.size()));
+            Position p = previousTile.getPos();
+            System.out.println("Choosing from heat map (" + p.x + ", " + p.y + ")");
+            return p;
         } else {
             //If no suitable heatmap tiles (any within range of killing a ship) use diagonal lines
-            System.out.println("[getFireCoords] 2");
             //Check every third tile, with a specific heuristic in mind
             for (int y = 0; y < 10; y++) {
                 int offset = y % 3;     //X indentation for each y increment
                 for (int x = offset; x < 10; x += 3) {
-                    System.out.println("Offset: " + offset + ", X: " + x + ", Y: " + y);
+                    //System.out.println("Offset: " + offset + ", X: " + x + ", Y: " + y);
                     Tile t = tileBoard.getTile(x, y);
-                    System.out.println("[getFireCoords] 5");
                     if (t.getTileState() == Tile.UNKNOWN) {
-                        System.out.println("[getFireCoords] 6");
                         suitableTiles.add(t);
-                        System.out.println("[getFireCoords] 7");
                     }
-                    System.out.println("[getFireCoords] 8");
                 }
             }
-            System.out.println("[getFireCoords] 3");
             if (suitableTiles.size() > 0) {
-                System.out.println("Shooting from 3 offset");
-                return suitableTiles.get(rnd.nextInt(suitableTiles.size())).getPos();
+                previousTile = suitableTiles.get(rnd.nextInt(suitableTiles.size()));
+                Position p = previousTile.getPos();
+                System.out.println("Shooting at Modulus 3 (" + p.x + ", " + p.y + ")");
+                return p;
             } else {
                 //Randomly selected from within every 2nd tile of the grid
                 for (int y = 0; y < 10; y++) {
@@ -147,8 +147,10 @@ public class Player implements BattleshipsPlayer {
                         }
                     }
                 }
-                System.out.println("Shooting from 2 offset");
-                return suitableTiles.get(rnd.nextInt(suitableTiles.size())).getPos();
+                previousTile = suitableTiles.get(rnd.nextInt(suitableTiles.size()));
+                Position p = previousTile.getPos();
+                System.out.println("Shooting at Modulus 2 (" + p.x + ", " + p.y + ")");
+                return p;
             }
         }
     }
@@ -167,6 +169,7 @@ public class Player implements BattleshipsPlayer {
     @Override
     public void hitFeedBack(boolean hit, Fleet enemyShips) {
         //Do nothing
+        previousTile.setTileState(hit ? Tile.HIT : Tile.MISS);
     }    
 
     

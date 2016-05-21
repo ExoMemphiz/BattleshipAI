@@ -42,37 +42,27 @@ public class TileBoard implements Iterable<Tile> {
         Position p = t.getPos();
         ArrayList<Tile> tiles = new ArrayList<>();
         if (p.x > 0) {
-            //x - 1; iterations
-            if (p.y > 0) {
-                //y - 1; iterations
-                Tile bound = getTile(p.x - 1, p.y - 1);
-                if (bound.getTileState() != Tile.MISS) {
-                    tiles.add(bound);
-                }
-            }
-            if (p.y < height - 1) {
-                //y + 1; iterations
-                Tile bound = getTile(p.x - 1, p.y + 1);
-                if (bound.getTileState() != Tile.MISS) {
-                    tiles.add(bound);
-                }
+            Tile bound = getTile(p.x - 1, p.y);
+            if (bound.getTileState() != Tile.MISS) {
+                tiles.add(bound);
             }
         }
         if (p.x < width - 1) {
-            //x + 1; iterations
-            if (p.y > 0) {
-                //y - 1; iterations
-                Tile bound = getTile(p.x + 1, p.y - 1);
-                if (bound.getTileState() != Tile.MISS) {
-                    tiles.add(bound);
-                }
+            Tile bound = getTile(p.x + 1, p.y);
+            if (bound.getTileState() != Tile.MISS) {
+                tiles.add(bound);
             }
-            if (p.y < height - 1) {
-                //y + 1; iterations
-                Tile bound = getTile(p.x + 1, p.y + 1);
-                if (bound.getTileState() != Tile.MISS) {
-                    tiles.add(bound);
-                }
+        }
+        if (p.y > 0) {
+            Tile bound = getTile(p.x, p.y - 1);
+            if (bound.getTileState() != Tile.MISS) {
+                tiles.add(bound);
+            }
+        }
+        if (p.y < height - 1) {
+            Tile bound = getTile(p.x, p.y + 1);
+            if (bound.getTileState() != Tile.MISS) {
+                tiles.add(bound);
             }
         }
         return tiles;
@@ -82,21 +72,25 @@ public class TileBoard implements Iterable<Tile> {
         for (int x = 0; x < width; x++) {
             for (int y = 0; y < height; y++) {
                 Tile t = getTile(x, y);
+                //System.out.println("Initial tile " + t.toString());
                 t.setTileValue(0);
                 if (t.getTileState() == Tile.UNKNOWN) {
                     //Possibility of shooting here
                     ArrayList<Tile> bounding = getBounding(t);
                     for (Tile bound : bounding) {
                         if (bound.getTileState() == Tile.HIT) {
+                            //System.out.println("Tile: " + t.toString() + ". Bordering a hit tile " + bound.toString());
                             ArrayList<Tile> hitBounding = getBounding(bound);
                             //Do something
                             boolean otherHits = false;
                             for (Tile hitBound : hitBounding) {
                                 if (!hitBound.equals(t)) {
                                     if (hitBound.getTileState() == Tile.HIT) {
+                                        //System.out.println("Bounding hit tile: " + hitBound.toString() + " with original hit tile: " + bound.toString());
                                         otherHits = true;
                                         if (inLineOfHits(bound, hitBound, t)) {
                                             t.setTileValue(99);
+                                            //System.out.println("Setting tile " + t.toString());
                                         }
                                     }
                                 }
@@ -154,6 +148,10 @@ public class TileBoard implements Iterable<Tile> {
             }
         };
         return tileIterator;
+    }
+    
+    public Tile[][] getBoard() {
+        return board;
     }
     
 }
