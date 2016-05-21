@@ -6,6 +6,7 @@
 package r2;
 
 import battleship.interfaces.Position;
+import java.util.ArrayList;
 
 /**
  *
@@ -32,8 +33,13 @@ public class TileBoard {
         return board[x][y];
     }
  
-    public void calculateHeatmap() {
-        
+    public void calculateHeatmap(ArrayList<Shot> shots) {
+        for (int x = 0; x < 10; x++) {
+            for (int y = 0; y < 10; y++) {
+                
+                
+            }
+        }
     }
     
 }

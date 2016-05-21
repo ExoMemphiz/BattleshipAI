@@ -26,10 +26,12 @@ public class Player implements BattleshipsPlayer {
     private int sizeX;
     private int sizeY;
     private Board myBoard;
+    private ArrayList<Shot> shots;
     private TileBoard tileBoard;
    
     public Player() {
         tileBoard = new TileBoard(sizeX, sizeY);
+        shots = new ArrayList<>();
         try {
             Field f = TileBoard.class.getDeclaredField("board");
             //myBoard.placeShip(pos, ship, true);

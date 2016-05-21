@@ -26,12 +26,12 @@ public class R2 implements PlayerFactory<BattleshipsPlayer> {
 
     @Override
     public String getID() {
-        return "E3";
+        return "R2";
     }
 
     @Override
     public String getName() {
-        return "E3 player";
+        return "Bingo Callers aka Viktor & Chris";
     }
     
 }
