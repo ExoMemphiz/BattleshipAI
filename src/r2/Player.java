@@ -26,12 +26,10 @@ public class Player implements BattleshipsPlayer {
     private int sizeX;
     private int sizeY;
     private Board myBoard;
-    private ArrayList<Shot> shots;
     private TileBoard tileBoard;
    
     public Player() {
         tileBoard = new TileBoard(sizeX, sizeY);
-        shots = new ArrayList<>();
         try {
             Field f = TileBoard.class.getDeclaredField("board");
             //myBoard.placeShip(pos, ship, true);
@@ -119,16 +117,27 @@ public class Player implements BattleshipsPlayer {
     @Override
     public Position getFireCoordinates(Fleet enemyShips) {
         ArrayList<Tile> suitableTiles = new ArrayList<>();
-        for (int y = 0; y < 10; y++) {
-            int offset = y % 3;     //X indentation for each y increment
-            for (int x = offset; x < 10; x += 3) {
-                Tile t = tileBoard.getTile(x, y);
-                if (t.getTileState() == Tile.UNKNOWN) {
-                    suitableTiles.add(t);
+        //if tilevalue is >= 50 the chance of hitting a ship is high, hit here.
+        tileBoard.calculateHeatmap();
+        for (Tile t : tileBoard) {
+            if (t.getTileValue() >= 25) {
+                suitableTiles.add(t);
+            }
+        }
+        //If no suitable heatmap tiles (any within range of killing a ship) use diagonal lines
+        if (suitableTiles.size() > 0) {
+            
+        } else {
+            for (int y = 0; y < 10; y++) {
+                int offset = y % 3;     //X indentation for each y increment
+                for (int x = offset; x < 10; x += 3) {
+                    Tile t = tileBoard.getTile(x, y);
+                    if (t.getTileState() == Tile.UNKNOWN) {
+                        suitableTiles.add(t);
+                    }
                 }
             }
         }
-        
         
         
         int x = rnd.nextInt(sizeX);
