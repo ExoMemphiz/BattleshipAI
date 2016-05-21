@@ -15,8 +15,8 @@ import java.util.Random;
  *
  * @author Tobias
  */
-public class Player implements BattleshipsPlayer
-{
+public class Player implements BattleshipsPlayer {
+    
     private final static Random rnd = new Random();
     private int sizeX;
     private int sizeY;
