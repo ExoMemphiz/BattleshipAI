@@ -79,6 +79,7 @@ public class TileBoard implements Iterable<Tile> {
                     ArrayList<Tile> bounding = getBounding(t);
                     for (Tile bound : bounding) {
                         if (bound.getTileState() == Tile.HIT) {
+                            t.setTileValue(20);
                             //System.out.println("Tile: " + t.toString() + ". Bordering a hit tile " + bound.toString());
                             ArrayList<Tile> hitBounding = getBounding(bound);
                             //Do something

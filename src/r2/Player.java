@@ -28,6 +28,8 @@ public class Player implements BattleshipsPlayer {
     private Board myBoard;
     private TileBoard tileBoard;
     private Tile previousTile;
+    private boolean killingShip;
+    private int cachedShips = 5;
    
     public Player() {
         tileBoard = new TileBoard(sizeX, sizeY);
@@ -107,54 +109,78 @@ public class Player implements BattleshipsPlayer {
         Tile[][] heatmapBoard = tileBoard.getBoard();
         for (Tile[] tiles : heatmapBoard) {
             for (Tile t : tiles) {
-                if (t.getTileValue() >= 25) {
+                if (t.getTileValue() >= 20) {
                     suitableTiles.add(t);
                 }
             }
         }
         //If there are suitable heatmap tiles
+        int count = 0;
+        for (Tile t : suitableTiles) {
+            if (t.getTileValue() >= 25) {
+                count++;
+            }
+        }
+        if (suitableTiles.size() > 0) {
+            if (killingShip) {
+                previousTile = suitableTiles.get(rnd.nextInt(suitableTiles.size()));
+                Position p = previousTile.getPos();
+                //System.out.println("Choosing from heat map (" + p.x + ", " + p.y + ")");
+                return p;
+            } else if (count > 0) {
+                //Only 25 or over
+                
+                previousTile = suitableTiles.get(rnd.nextInt(suitableTiles.size()));
+                
+                while (previousTile.getTileValue() < 25) {
+                    previousTile = suitableTiles.get(rnd.nextInt(suitableTiles.size()));
+                }
+                Position p = previousTile.getPos();
+                //System.out.println("Choosing from heat map (" + p.x + ", " + p.y + ")");
+                return p;
+            } else {
+                return shootRandomShit(suitableTiles);
+            }
+        } else {
+            return shootRandomShit(suitableTiles);
+        }
+    }
+
+    public Position shootRandomShit(ArrayList<Tile> suitableTiles) {
+        //If no suitable heatmap tiles (any within range of killing a ship) use diagonal lines
+        //Check every third tile, with a specific heuristic in mind
+        for (int y = 0; y < 10; y++) {
+            int offset = y % 3;     //X indentation for each y increment
+            for (int x = offset; x < 10; x += 3) {
+                //System.out.println("Offset: " + offset + ", X: " + x + ", Y: " + y);
+                Tile t = tileBoard.getTile(x, y);
+                if (t.getTileState() == Tile.UNKNOWN) {
+                    suitableTiles.add(t);
+                }
+            }
+        }
         if (suitableTiles.size() > 0) {
             previousTile = suitableTiles.get(rnd.nextInt(suitableTiles.size()));
             Position p = previousTile.getPos();
-            System.out.println("Choosing from heat map (" + p.x + ", " + p.y + ")");
+            //System.out.println("Shooting at Modulus 3 (" + p.x + ", " + p.y + ")");
             return p;
         } else {
-            //If no suitable heatmap tiles (any within range of killing a ship) use diagonal lines
-            //Check every third tile, with a specific heuristic in mind
+            //Randomly selected from within every 2nd tile of the grid
             for (int y = 0; y < 10; y++) {
-                int offset = y % 3;     //X indentation for each y increment
-                for (int x = offset; x < 10; x += 3) {
-                    //System.out.println("Offset: " + offset + ", X: " + x + ", Y: " + y);
+                int offset = y % 2;     //X indentation for each y increment
+                for (int x = offset; x < 10; x += 2) {
                     Tile t = tileBoard.getTile(x, y);
                     if (t.getTileState() == Tile.UNKNOWN) {
                         suitableTiles.add(t);
                     }
                 }
             }
-            if (suitableTiles.size() > 0) {
-                previousTile = suitableTiles.get(rnd.nextInt(suitableTiles.size()));
-                Position p = previousTile.getPos();
-                System.out.println("Shooting at Modulus 3 (" + p.x + ", " + p.y + ")");
-                return p;
-            } else {
-                //Randomly selected from within every 2nd tile of the grid
-                for (int y = 0; y < 10; y++) {
-                    int offset = y % 2;     //X indentation for each y increment
-                    for (int x = offset; x < 10; x += 2) {
-                        Tile t = tileBoard.getTile(x, y);
-                        if (t.getTileState() == Tile.UNKNOWN) {
-                            suitableTiles.add(t);
-                        }
-                    }
-                }
-                previousTile = suitableTiles.get(rnd.nextInt(suitableTiles.size()));
-                Position p = previousTile.getPos();
-                System.out.println("Shooting at Modulus 2 (" + p.x + ", " + p.y + ")");
-                return p;
-            }
+            previousTile = suitableTiles.get(rnd.nextInt(suitableTiles.size()));
+            Position p = previousTile.getPos();
+            //System.out.println("Shooting at Modulus 2 (" + p.x + ", " + p.y + ")");
+            return p;
         }
     }
-
     
     /**
      * Called right after getFireCoordinates(...) to let your AI know if you hit
@@ -169,6 +195,13 @@ public class Player implements BattleshipsPlayer {
     @Override
     public void hitFeedBack(boolean hit, Fleet enemyShips) {
         //Do nothing
+        if (hit) {
+            killingShip = true;
+        }
+        if (enemyShips.getNumberOfShips() < cachedShips) {
+            cachedShips--;
+            killingShip = false;
+        }
         previousTile.setTileState(hit ? Tile.HIT : Tile.MISS);
     }    
 
