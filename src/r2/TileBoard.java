@@ -34,7 +34,8 @@ public class TileBoard implements Iterable<Tile> {
     }
     
     public Tile getTile(int x, int y) {
-        return board[x][y];
+        Tile t = board[x][y];
+        return t;
     }
  
     private ArrayList<Tile> getBounding(Tile t) {
@@ -81,6 +82,7 @@ public class TileBoard implements Iterable<Tile> {
         for (int x = 0; x < width; x++) {
             for (int y = 0; y < height; y++) {
                 Tile t = getTile(x, y);
+                t.setTileValue(0);
                 if (t.getTileState() == Tile.UNKNOWN) {
                     //Possibility of shooting here
                     ArrayList<Tile> bounding = getBounding(t);
@@ -88,19 +90,22 @@ public class TileBoard implements Iterable<Tile> {
                         if (bound.getTileState() == Tile.HIT) {
                             ArrayList<Tile> hitBounding = getBounding(bound);
                             //Do something
+                            boolean otherHits = false;
                             for (Tile hitBound : hitBounding) {
                                 if (!hitBound.equals(t)) {
-                                    if (inLineOfHits(bound, hitBound, t)) {
-                                        
+                                    if (hitBound.getTileState() == Tile.HIT) {
+                                        otherHits = true;
+                                        if (inLineOfHits(bound, hitBound, t)) {
+                                            t.setTileValue(99);
+                                        }
                                     }
                                 }
                             }
-                        } else {
-                            //
+                            if (!otherHits) {
+                                t.setTileValue(99);
+                            }
                         }
                     }
-                } else if (t.getTileState() == Tile.HIT) {
-                    
                 }
             }
         }

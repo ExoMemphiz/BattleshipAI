@@ -23,24 +23,13 @@ import java.util.logging.Logger;
 public class Player implements BattleshipsPlayer {
     
     private final static Random rnd = new Random();
-    private int sizeX;
-    private int sizeY;
+    private int sizeX = 10;
+    private int sizeY = 10;
     private Board myBoard;
     private TileBoard tileBoard;
    
     public Player() {
         tileBoard = new TileBoard(sizeX, sizeY);
-        try {
-            Field f = TileBoard.class.getDeclaredField("board");
-            //myBoard.placeShip(pos, ship, true);
-            Type type = f.getType();
-            System.out.println("Tilebaord board is of type: " + type);
-        } catch (NoSuchFieldException ex) {
-            Logger.getLogger(Player.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (SecurityException ex) {
-            Logger.getLogger(Player.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        
     }
 
    
@@ -62,10 +51,6 @@ public class Player implements BattleshipsPlayer {
      */
     @Override
     public void placeShips(Fleet fleet, Board board) {
-        for (Ship s : fleet) {
-            
-        }
-        /*
         myBoard = board;
         sizeX = board.sizeX();
         sizeY = board.sizeY();
@@ -88,7 +73,6 @@ public class Player implements BattleshipsPlayer {
             }
             board.placeShip(pos, s, vertical);
         }
-        */
     }
 
     /**
@@ -116,6 +100,7 @@ public class Player implements BattleshipsPlayer {
      */
     @Override
     public Position getFireCoordinates(Fleet enemyShips) {
+        System.out.println("Testing fire");
         ArrayList<Tile> suitableTiles = new ArrayList<>();
         //if tilevalue is >= 50 the chance of hitting a ship is high, hit here.
         tileBoard.calculateHeatmap();
@@ -124,25 +109,48 @@ public class Player implements BattleshipsPlayer {
                 suitableTiles.add(t);
             }
         }
-        //If no suitable heatmap tiles (any within range of killing a ship) use diagonal lines
+        System.out.println("[getFireCoords] 1");
+        //If there are suitable heatmap tiles
         if (suitableTiles.size() > 0) {
-            
+            System.out.println("Shooting from HeatMap");
+            return suitableTiles.get(rnd.nextInt(suitableTiles.size())).getPos();
         } else {
+            //If no suitable heatmap tiles (any within range of killing a ship) use diagonal lines
+            System.out.println("[getFireCoords] 2");
+            //Check every third tile, with a specific heuristic in mind
             for (int y = 0; y < 10; y++) {
                 int offset = y % 3;     //X indentation for each y increment
                 for (int x = offset; x < 10; x += 3) {
+                    System.out.println("Offset: " + offset + ", X: " + x + ", Y: " + y);
                     Tile t = tileBoard.getTile(x, y);
+                    System.out.println("[getFireCoords] 5");
                     if (t.getTileState() == Tile.UNKNOWN) {
+                        System.out.println("[getFireCoords] 6");
                         suitableTiles.add(t);
+                        System.out.println("[getFireCoords] 7");
                     }
+                    System.out.println("[getFireCoords] 8");
                 }
             }
+            System.out.println("[getFireCoords] 3");
+            if (suitableTiles.size() > 0) {
+                System.out.println("Shooting from 3 offset");
+                return suitableTiles.get(rnd.nextInt(suitableTiles.size())).getPos();
+            } else {
+                //Randomly selected from within every 2nd tile of the grid
+                for (int y = 0; y < 10; y++) {
+                    int offset = y % 2;     //X indentation for each y increment
+                    for (int x = offset; x < 10; x += 2) {
+                        Tile t = tileBoard.getTile(x, y);
+                        if (t.getTileState() == Tile.UNKNOWN) {
+                            suitableTiles.add(t);
+                        }
+                    }
+                }
+                System.out.println("Shooting from 2 offset");
+                return suitableTiles.get(rnd.nextInt(suitableTiles.size())).getPos();
+            }
         }
-        
-        
-        int x = rnd.nextInt(sizeX);
-        int y = rnd.nextInt(sizeY);
-        return new Position(x,y);
     }
 
     
