@@ -9,7 +9,12 @@ import battleship.interfaces.Fleet;
 import battleship.interfaces.Position;
 import battleship.interfaces.Board;
 import battleship.interfaces.Ship;
+import java.lang.reflect.Field;
+import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.Random;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -21,8 +26,20 @@ public class Player implements BattleshipsPlayer {
     private int sizeX;
     private int sizeY;
     private Board myBoard;
+    private TileBoard tileBoard;
    
     public Player() {
+        tileBoard = new TileBoard(sizeX, sizeY);
+        try {
+            Field f = TileBoard.class.getDeclaredField("board");
+            //myBoard.placeShip(pos, ship, true);
+            Type type = f.getType();
+            System.out.println("Tilebaord board is of type: " + type);
+        } catch (NoSuchFieldException ex) {
+            Logger.getLogger(Player.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (SecurityException ex) {
+            Logger.getLogger(Player.class.getName()).log(Level.SEVERE, null, ex);
+        }
         
     }
 
@@ -45,6 +62,10 @@ public class Player implements BattleshipsPlayer {
      */
     @Override
     public void placeShips(Fleet fleet, Board board) {
+        for (Ship s : fleet) {
+            
+        }
+        /*
         myBoard = board;
         sizeX = board.sizeX();
         sizeY = board.sizeY();
@@ -67,6 +88,7 @@ public class Player implements BattleshipsPlayer {
             }
             board.placeShip(pos, s, vertical);
         }
+        */
     }
 
     /**
@@ -94,6 +116,19 @@ public class Player implements BattleshipsPlayer {
      */
     @Override
     public Position getFireCoordinates(Fleet enemyShips) {
+        ArrayList<Tile> suitableTiles = new ArrayList<>();
+        for (int y = 0; y < 10; y++) {
+            int offset = y % 3;     //X indentation for each y increment
+            for (int x = offset; x < 10; x += 3) {
+                Tile t = tileBoard.getTile(x, y);
+                if (t.getTileState() == Tile.UNKNOWN) {
+                    suitableTiles.add(t);
+                }
+            }
+        }
+        
+        
+        
         int x = rnd.nextInt(sizeX);
         int y = rnd.nextInt(sizeY);
         return new Position(x,y);
