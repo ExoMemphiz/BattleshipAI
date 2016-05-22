@@ -10,6 +10,7 @@ import battleship.interfaces.Position;
 import battleship.interfaces.Board;
 import battleship.interfaces.Ship;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Random;
 
 /**
@@ -21,6 +22,7 @@ public class Player implements BattleshipsPlayer {
     private final static Random rnd = new Random();
     private int sizeX = 10;
     private int sizeY = 10;
+    private int enemyShots[][];
     private Board myBoard;
     private TileBoard tileBoard;
     private Tile previousTile;
@@ -29,6 +31,8 @@ public class Player implements BattleshipsPlayer {
    
     public Player() {
         tileBoard = new TileBoard(sizeX, sizeY);
+        enemyShots = new int[10][10];
+        Arrays.fill(enemyShots, 0);
     }
 
    
@@ -117,7 +121,7 @@ public class Player implements BattleshipsPlayer {
      */
     @Override
     public void incoming(Position pos) {
-        //Do nothing
+        enemyShots[pos.x][pos.y]++;
     }
 
     
@@ -255,7 +259,7 @@ public class Player implements BattleshipsPlayer {
      */
     @Override
     public void startMatch(int rounds) {
-        //Do nothing
+        //Clear enemy shots???
     }
     
     
