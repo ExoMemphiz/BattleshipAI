@@ -50,6 +50,8 @@ public class Player implements BattleshipsPlayer {
      */
     @Override
     public void placeShips(Fleet fleet, Board board) {
+        placeShipsCorner(fleet, board);
+        /*
         myBoard = board;
         sizeX = board.sizeX();
         sizeY = board.sizeY();
@@ -71,6 +73,37 @@ public class Player implements BattleshipsPlayer {
                 pos = new Position(x, y);
             }
             board.placeShip(pos, s, vertical);
+        }
+        */
+    }
+    
+    public void placeShipsCorner(Fleet fleet, Board board)
+    {
+        myBoard = board;
+        sizeX = board.sizeX();
+        sizeY = board.sizeY();
+        boolean vertical = true;
+        Position startPos = null;
+        int bingo = rnd.nextInt(4);
+        switch (bingo)
+        {
+            case 0:
+                startPos = new Position(0,0);
+                break;
+            case 1:
+                startPos = new Position(0,5);
+                break;
+            case 2:
+                startPos = new Position(4,0);
+                break;
+            case 3:
+                startPos = new Position(4,5);
+                break;
+        }
+        
+        for (int i = 0; i < fleet.getNumberOfShips(); i++) {
+            Ship s = fleet.getShip(i);
+            board.placeShip(startPos, s, vertical);
         }
     }
 
