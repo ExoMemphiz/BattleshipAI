@@ -23,11 +23,12 @@ public class TestRunShizzles {
     }
     
     private static void RunSingle() {
-        battleship.interfaces.BattleshipsPlayer p = (new R2()).getNewInstance();
+        battleship.interfaces.BattleshipsPlayer p1 = (new R2()).getNewInstance();
+        battleship.interfaces.BattleshipsPlayer p2 = (new R2()).getNewInstance();
         int playerAScore = 0;
         int playerBScore = 0;
         for (int i = 0; i < 1; i++) {
-            ExtraGameResult result = SingleRoundVisualizer.chrisMain(p);
+            ExtraGameResult result = SingleRoundVisualizer.chrisMain(p1, p2);
             playerAScore += result.getRes().minorPointsA;
             playerBScore += result.getRes().minorPointsB;
             
