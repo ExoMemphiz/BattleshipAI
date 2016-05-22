@@ -9,12 +9,8 @@ import battleship.interfaces.Fleet;
 import battleship.interfaces.Position;
 import battleship.interfaces.Board;
 import battleship.interfaces.Ship;
-import java.lang.reflect.Field;
-import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Random;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  *
@@ -160,7 +156,14 @@ public class Player implements BattleshipsPlayer {
             }
         }
         if (suitableTiles.size() > 0) {
-            previousTile = suitableTiles.get(rnd.nextInt(suitableTiles.size()));
+            Tile highestHeuristic = suitableTiles.get(0);
+            for (Tile t : suitableTiles) {
+                if (t.getHeuristicValue() < highestHeuristic.getHeuristicValue() || rnd.nextInt(100) > 90) {
+                    highestHeuristic = t;
+                }
+            }
+            previousTile = highestHeuristic;
+            //previousTile = suitableTiles.get(rnd.nextInt(suitableTiles.size()));
             Position p = previousTile.getPos();
             //System.out.println("Shooting at Modulus 3 (" + p.x + ", " + p.y + ")");
             return p;
@@ -175,7 +178,13 @@ public class Player implements BattleshipsPlayer {
                     }
                 }
             }
-            previousTile = suitableTiles.get(rnd.nextInt(suitableTiles.size()));
+            Tile highestHeuristic = suitableTiles.get(0);
+            for (Tile t : suitableTiles) {
+                if (t.getHeuristicValue() < highestHeuristic.getHeuristicValue() || rnd.nextInt(100) > 90) {
+                    highestHeuristic = t;
+                }
+            }
+            previousTile = highestHeuristic;
             Position p = previousTile.getPos();
             //System.out.println("Shooting at Modulus 2 (" + p.x + ", " + p.y + ")");
             return p;
