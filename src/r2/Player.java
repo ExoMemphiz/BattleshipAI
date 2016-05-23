@@ -22,19 +22,29 @@ public class Player implements BattleshipsPlayer {
     private final static Random rnd = new Random();
     private int sizeX = 10;
     private int sizeY = 10;
-    private int enemyShots[][];
+    private double enemyShots[][];
+    private double incrementer = 1.0;
     private Board myBoard;
     private TileBoard tileBoard;
     private Tile previousTile;
     private boolean killingShip;
     private int cachedShips = 5;
+    private int roundNumber = 0;
+    private boolean topRightWin = true;
+    private Board copyOfBoard;
    
     public Player() {
         tileBoard = new TileBoard(sizeX, sizeY);
-        enemyShots = new int[10][10];
-        Arrays.fill(enemyShots, 0);
+        enemyShots = new double[sizeX][sizeY];
     }
 
+    public void resetEnemyShots() {
+        for (int i = 0; i < enemyShots.length; i++) {
+            for (int j = 0; j < enemyShots[i].length; j++) {
+                enemyShots[i][j] = 0;
+            }
+        }
+    }
    
     /**
      * The method called when its time for the AI to place ships on the board 
@@ -54,7 +64,75 @@ public class Player implements BattleshipsPlayer {
      */
     @Override
     public void placeShips(Fleet fleet, Board board) {
-        placeShipsCorner(fleet, board);
+        /*
+        if (topRightWin) {
+            System.out.println("Running topRight!");
+            placeShipsCorner(fleet, board);
+            return;
+        }
+        */
+        System.out.println("Running heatmap placements");
+        //Example: Pos(0, 1)
+        //Get heatmap:
+        //[0] [ ] [ ] [ ] [ ] [ ]
+        //[0] [ ] [ ] [ ] [ ] [ ]
+        //[0] [ ] [ ] [1] [ ] [ ]
+        //[1] [ ] [ ] [ ] [ ] [ ]
+        //[0] [ ] [ ] [ ] [ ] [ ]
+        //Calc = (PositionHits * 100) / All shots;
+
+        int[] shipSizes = {5, 4, 3, 3, 2};
+        int[][] shipPlacements = new int[sizeX][sizeY];
+        int decrement = 4;
+        for (int size : shipSizes) {
+            double bestShipScore = Double.MAX_VALUE;
+            Position bestPosition = new Position(0, 0);
+            boolean bestPlacementVertical = false;
+            for (int vert = 0; vert <= 1; vert++) {
+                boolean vertical = (vert == 0);
+                for (int x = 0; x < (vertical ? sizeX : sizeX - size); x++) {
+                    for (int y = 0; y < (vertical ? sizeY - size : sizeY); y++) {
+                        if (shipPlacements[x][y] == 0) {
+                            double currentScore = getShipPlacementScore(shipPlacements, new Position(x, y), size, vertical);
+                            //System.out.println("Checking ship " + size + " (" + x + ", " + y + ") with score: " + currentScore);
+                            if (currentScore < bestShipScore) {
+                                //System.out.println("Found a new best positon for ship size: " + size + " at: (" + x + ", " + y + ") with score: " + currentScore);
+                                bestPosition = new Position(x, y);
+                                bestPlacementVertical = vertical;
+                                bestShipScore = currentScore;
+                            } 
+                        } else {
+                            //System.out.println("Checking ship " + size + " (" + x + ", " + y + ") --- SKIPPING ---");
+                        }
+                    }
+                }
+            }
+            //System.out.println("[Round: " + roundNumber + "] Placing ship " + size + " on Position: " + bestPosition.x + ", " + bestPosition.y + " " + (bestPlacementVertical ? "vertically" : "horizontally"));
+            board.placeShip(bestPosition, fleet.getShip(decrement--), bestPlacementVertical);
+            for (int x = bestPosition.x; x < (bestPlacementVertical ? bestPosition.x + 1 : bestPosition.x + size); x++) {
+                for (int y = bestPosition.y; y < (bestPlacementVertical ? bestPosition.y + size : bestPosition.y + 1); y++) {
+                    shipPlacements[x][y] = size;
+                }
+            }
+            //Example: size == 5
+            //Next step? iterate over all horizontal spaces that are valid, then vertical spaces that are valid.
+            //Save the startPosition for whatever has the lowest score
+        }
+        
+        if (roundNumber == 5) {
+            //Print board here
+            System.out.println("---------");
+            for (int y = 0; y < shipPlacements[0].length; y++) {
+                String s = "";
+                for (int x = 0; x < shipPlacements.length; x++) {
+                    int value = shipPlacements[x][y];
+                    s += (value == 0 ? "-" : value);
+                }
+                System.out.println(s);
+            }
+        }
+        
+        
         /*
         myBoard = board;
         sizeX = board.sizeX();
@@ -81,36 +159,42 @@ public class Player implements BattleshipsPlayer {
         */
     }
     
+    private double getShipPlacementScore(int[][] shipPlacements, Position startPosition, int shipSize, boolean vertical) {
+        double score = 0;
+        int baseX = startPosition.x;
+        int baseY = startPosition.y;
+        for (int x = 0; x < (vertical ? 1 : shipSize); x++) {
+            for (int y = 0; y < (vertical ? shipSize : 1); y++) {
+                if (shipPlacements[baseX + x][baseY + y] != 0) {
+                    return Double.MAX_VALUE;
+                }
+                score += enemyShots[baseX + x][baseY + y];
+            }
+        }
+        return score;
+    }
+    
     public void placeShipsCorner(Fleet fleet, Board board)
     {
         myBoard = board;
         sizeX = board.sizeX();
         sizeY = board.sizeY();
-        boolean vertical = true;
-        Position startPos = null;
-        int bingo = rnd.nextInt(4);
-        switch (bingo)
-        {
-            case 0:
-                startPos = new Position(0,0);
-                break;
-            case 1:
-                startPos = new Position(0,5);
-                break;
-            case 2:
-                startPos = new Position(4,0);
-                break;
-            case 3:
-                startPos = new Position(4,5);
-                break;
-        }
-        
+        boolean vertical = false;
+        Position startPos = new Position(4,5);
+        //Ship positions
+        Position[] posAr = new Position[5];
+        posAr[0] = new Position(startPos.x + 1, startPos.y + 3);        //2
+        posAr[1] = new Position(startPos.x + 3, startPos.y + 3);        //3
+        posAr[2] = new Position(startPos.x + 3, startPos.y + 1);      //3
+        posAr[3] = new Position(startPos.x + 2, startPos.y + 2);      //4
+        posAr[4] = new Position(startPos.x + 1, startPos.y + 4);      //5
+       
         for (int i = 0; i < fleet.getNumberOfShips(); i++) {
             Ship s = fleet.getShip(i);
-            board.placeShip(startPos, s, vertical);
+            board.placeShip(posAr[i], s, vertical);
         }
     }
-
+    
     /**
      * Called every time the enemy has fired a shot.
      * 
@@ -121,7 +205,22 @@ public class Player implements BattleshipsPlayer {
      */
     @Override
     public void incoming(Position pos) {
-        enemyShots[pos.x][pos.y]++;
+        
+        if (incrementer < 0.025) {
+            incrementer = 0.025;
+        }
+        
+        //Example: Pos(0, 1)
+        //Get heatmap:
+        //[0] [ ] [ ] [ ] [ ] [ ]
+        //[0] [ ] [ ] [ ] [ ] [ ]
+        //[0] [ ] [ ] [1] [ ] [ ]
+        //[1] [ ] [ ] [ ] [ ] [ ]
+        //[0] [ ] [ ] [ ] [ ] [ ]
+        //Calc = (PositionHits * 100) / All shots;
+
+        enemyShots[pos.x][pos.y] += 1 + incrementer;
+        incrementer -= 0.025;
     }
 
     
@@ -195,9 +294,12 @@ public class Player implements BattleshipsPlayer {
         if (suitableTiles.size() > 0) {
             Tile highestHeuristic = suitableTiles.get(0);
             for (Tile t : suitableTiles) {
-                if (t.getHeuristicValue() < highestHeuristic.getHeuristicValue() || rnd.nextInt(100) > 90) {
+                if (t.getHeuristicValue() < highestHeuristic.getHeuristicValue()) {
                     highestHeuristic = t;
                 }
+            }
+            if (rnd.nextInt(100) > 90) {
+                highestHeuristic = suitableTiles.get(rnd.nextInt(suitableTiles.size()));
             }
             previousTile = highestHeuristic;
             //previousTile = suitableTiles.get(rnd.nextInt(suitableTiles.size()));
@@ -217,9 +319,12 @@ public class Player implements BattleshipsPlayer {
             }
             Tile highestHeuristic = suitableTiles.get(0);
             for (Tile t : suitableTiles) {
-                if (t.getHeuristicValue() < highestHeuristic.getHeuristicValue() || rnd.nextInt(100) > 90) {
+                if (t.getHeuristicValue() < highestHeuristic.getHeuristicValue()) {
                     highestHeuristic = t;
                 }
+            }
+            if (rnd.nextInt(100) > 90) {
+                highestHeuristic = suitableTiles.get(rnd.nextInt(suitableTiles.size()));
             }
             previousTile = highestHeuristic;
             Position p = previousTile.getPos();
@@ -260,6 +365,7 @@ public class Player implements BattleshipsPlayer {
     @Override
     public void startMatch(int rounds) {
         //Clear enemy shots???
+        resetEnemyShots();
     }
     
     
@@ -270,6 +376,8 @@ public class Player implements BattleshipsPlayer {
     @Override
     public void startRound(int round) {
         //Do nothing
+        roundNumber = round;
+        tileBoard = new TileBoard(sizeX, sizeY);
     }
 
     
@@ -286,6 +394,9 @@ public class Player implements BattleshipsPlayer {
     @Override
     public void endRound(int round, int points, int enemyPoints) {
         //Do nothing
+        if (points <= enemyPoints) {
+            topRightWin = false;
+        }
     }
     
     

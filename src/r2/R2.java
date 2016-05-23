@@ -31,7 +31,7 @@ public class R2 implements PlayerFactory<BattleshipsPlayer> {
 
     @Override
     public String getName() {
-        return "Bingo Callers aka Viktor & Chris";
+        return "Viktor & Chris";
     }
     
 }

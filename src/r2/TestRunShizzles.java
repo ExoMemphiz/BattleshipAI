@@ -11,6 +11,7 @@ import battleshipstournament.SingleRoundVisualizer;
 import java.util.ArrayList;
 import tournament.game.GameResult;
 import tournament.impl.ParticipantInfo;
+import battleship.interfaces.*;
 
 /**
  *
@@ -23,17 +24,17 @@ public class TestRunShizzles {
     }
     
     private static void RunSingle() {
-        battleship.interfaces.BattleshipsPlayer p1 = (new R2()).getNewInstance();
-        battleship.interfaces.BattleshipsPlayer p2 = (new R2()).getNewInstance();
+        BattleshipsPlayer p1 = (new R2()).getNewInstance();
         int playerAScore = 0;
         int playerBScore = 0;
         for (int i = 0; i < 1; i++) {
-            ExtraGameResult result = SingleRoundVisualizer.chrisMain(p1, p2);
+            int wins = SingleRoundVisualizer.chrisMain(p1, null);
+            System.out.println("Total wins: " + wins);
+            /*
             playerAScore += result.getRes().minorPointsA;
             playerBScore += result.getRes().minorPointsB;
-            
+            */
         }
-        
         System.out.println("Player R2: " + playerAScore);
         System.out.println("Player Systematic shooter: " + playerBScore);
     }
@@ -45,8 +46,8 @@ public class TestRunShizzles {
        
     public static void printScore(ArrayList<ParticipantInfo> list) {
         for (ParticipantInfo p : list) {
-            System.out.println(p.getName() + " has " + p.getMinorPoints() + " minor points.");
+            System.out.println(p.getName() + " has " + p.getMatchesWon() + " match wins");
         }
     }
-    
+ 
 }
