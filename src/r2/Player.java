@@ -64,14 +64,12 @@ public class Player implements BattleshipsPlayer {
      */
     @Override
     public void placeShips(Fleet fleet, Board board) {
-        /*
         if (topRightWin) {
-            System.out.println("Running topRight!");
+            //System.out.println("Running topRight!");
             placeShipsCorner(fleet, board);
             return;
         }
-        */
-        System.out.println("Running heatmap placements");
+        //System.out.println("Running heatmap placements");
         //Example: Pos(0, 1)
         //Get heatmap:
         //[0] [ ] [ ] [ ] [ ] [ ]
@@ -114,23 +112,13 @@ public class Player implements BattleshipsPlayer {
                     shipPlacements[x][y] = size;
                 }
             }
-            //Example: size == 5
-            //Next step? iterate over all horizontal spaces that are valid, then vertical spaces that are valid.
-            //Save the startPosition for whatever has the lowest score
         }
         
+        /*
         if (roundNumber == 5) {
-            //Print board here
-            System.out.println("---------");
-            for (int y = 0; y < shipPlacements[0].length; y++) {
-                String s = "";
-                for (int x = 0; x < shipPlacements.length; x++) {
-                    int value = shipPlacements[x][y];
-                    s += (value == 0 ? "-" : value);
-                }
-                System.out.println(s);
-            }
+            drawBoard(shipPlacements);
         }
+        */
         
         
         /*
@@ -157,6 +145,19 @@ public class Player implements BattleshipsPlayer {
             board.placeShip(pos, s, vertical);
         }
         */
+    }
+    
+    public void drawBoard(int[][] shipPlacements) {
+        //Print board here
+            System.out.println("---------");
+            for (int y = 0; y < shipPlacements[0].length; y++) {
+                String s = "";
+                for (int x = 0; x < shipPlacements.length; x++) {
+                    int value = shipPlacements[x][y];
+                    s += (value == 0 ? "-" : value);
+                }
+                System.out.println(s);
+            }
     }
     
     private double getShipPlacementScore(int[][] shipPlacements, Position startPosition, int shipSize, boolean vertical) {

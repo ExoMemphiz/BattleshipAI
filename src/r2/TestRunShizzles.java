@@ -20,7 +20,7 @@ import battleship.interfaces.*;
 public class TestRunShizzles {
  
     public static void main(String[] args) {
-        RunSingle();
+        RunTournament();
     }
     
     private static void RunSingle() {
